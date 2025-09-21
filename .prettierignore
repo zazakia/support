@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+.yarn/
+
+# Build outputs
+dist/
+build/
+.expo/
+.next/
+
+# Generated files
+*.generated.*
+*.d.ts
+
+# Package files
+package-lock.json
+yarn.lock
+
+# Environment files
+.env*
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Git
+.git/
+
+# Coverage
+coverage/
+
+# Cache
+.cache/
+.parcel-cache/
