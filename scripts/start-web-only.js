@@ -14,8 +14,8 @@ process.env.EXPO_NO_IOS = '1';
 const args = [
   'expo', 
   'start', 
-  '--web-only',
-  '--port', '8081',
+  '--web',
+  '--port', '8082',
   '--host', 'localhost'
 ];
 

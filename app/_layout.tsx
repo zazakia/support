@@ -33,7 +33,6 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="login" />
-        <Stack.Screen name="admin" />
         <Stack.Screen name="job-details" />
         <Stack.Screen name="create-job" />
         <Stack.Screen name="customer-details" />

@@ -1,20 +1,77 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import { router } from 'expo-router';
+import { UserList } from '../../components/UserList';
+import { UserForm } from '../../components/UserForm';
+import { RoleGuard } from '../../components/RoleGuard';
+import { mockUsers } from '../../utils/mockData';
+import { User, CreateUserRequest, UpdateUserRequest } from '../../types';
 import { Building2, Users, Wrench, Bell, ChartBar as BarChart3, Settings, Plus, UserCheck, Briefcase, DollarSign } from 'lucide-react-native';
 
 export default function AdminScreen() {
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<'overview' | 'users'>('overview');
+  const [showUserForm, setShowUserForm] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | undefined>(undefined);
+  const [users, setUsers] = useState(mockUsers);
 
 
-  if (user?.role !== 'admin' && user?.role !== 'owner') {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>Access denied. Admin privileges required.</Text>
-      </View>
+  const handleCreateUser = () => {
+    setEditingUser(undefined);
+    setShowUserForm(true);
+  };
+
+  const handleEditUser = (userToEdit: User) => {
+    setEditingUser(userToEdit);
+    setShowUserForm(true);
+  };
+
+  const handleSaveUser = (userData: CreateUserRequest | UpdateUserRequest) => {
+    if (editingUser) {
+      // Update existing user
+      setUsers(prev => prev.map(u => 
+        u.id === editingUser.id 
+          ? { ...u, ...userData, updatedAt: new Date() }
+          : u
+      ));
+      Alert.alert('Success', 'User updated successfully!');
+    } else {
+      // Create new user
+      const newUser: User = {
+        id: `U${Date.now()}`,
+        ...(userData as CreateUserRequest),
+        isActive: true,
+        lastLogin: undefined,
+        createdAt: new Date(),
+        permissions: []
+      };
+      setUsers(prev => [...prev, newUser]);
+      Alert.alert('Success', 'User created successfully!');
+    }
+    setShowUserForm(false);
+    setEditingUser(undefined);
+  };
+
+  const handleUserPress = (selectedUser: User) => {
+    Alert.alert(
+      'User Details',
+      `Name: ${selectedUser.name}\nEmail: ${selectedUser.email}\nRole: ${selectedUser.role}\nStatus: ${selectedUser.isActive ? 'Active' : 'Inactive'}`,
+      [
+        { text: 'Edit', onPress: () => handleEditUser(selectedUser) },
+        { text: 'Close', style: 'cancel' }
+      ]
     );
-  }
+  };
+
+  const handleToggleUserStatus = (userToToggle: User) => {
+    setUsers(prev => prev.map(u => 
+      u.id === userToToggle.id 
+        ? { ...u, isActive: !u.isActive }
+        : u
+    ));
+    Alert.alert('Success', `User ${userToToggle.isActive ? 'deactivated' : 'activated'} successfully!`);
+  };
 
   const adminSections = [
     {
@@ -110,14 +167,35 @@ export default function AdminScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Admin Panel</Text>
-        <Text style={styles.subtitle}>System management & controls</Text>
-      </View>
+    <RoleGuard allowedRoles={['admin', 'owner']}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Admin Panel</Text>
+          <Text style={styles.subtitle}>System management & controls</Text>
+          
+          <View style={styles.tabContainer}>
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'overview' && styles.tabActive]}
+              onPress={() => setActiveTab('overview')}
+            >
+              <Text style={[styles.tabText, activeTab === 'overview' && styles.tabTextActive]}>
+                Overview
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'users' && styles.tabActive]}
+              onPress={() => setActiveTab('users')}
+            >
+              <Text style={[styles.tabText, activeTab === 'users' && styles.tabTextActive]}>
+                User Management
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <View style={styles.content}>
+        {activeTab === 'overview' ? (
+          <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+            <View style={styles.content}>
           {/* Quick Stats */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Overview</Text>
@@ -221,9 +299,31 @@ export default function AdminScreen() {
               </View>
             </View>
           </View>
-        </View>
-      </ScrollView>
-    </View>
+            </View>
+          </ScrollView>
+        ) : (
+          <UserList
+            users={users}
+            onUserPress={handleUserPress}
+            onCreateUser={handleCreateUser}
+            onEditUser={handleEditUser}
+            onToggleUserStatus={handleToggleUserStatus}
+            isLoading={false}
+          />
+        )}
+
+        <UserForm
+          user={editingUser}
+          isVisible={showUserForm}
+          onClose={() => {
+            setShowUserForm(false);
+            setEditingUser(undefined);
+          }}
+          onSave={handleSaveUser}
+          isEditing={!!editingUser}
+        />
+      </View>
+    </RoleGuard>
   );
 }
 
@@ -418,5 +518,36 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 100,
     fontFamily: 'Inter-Regular',
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    marginTop: 16,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 12,
+    padding: 4,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  tabActive: {
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#64748B',
+  },
+  tabTextActive: {
+    color: '#2563EB',
+    fontWeight: '600',
   },
 });

@@ -1,41 +1,87 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
-import { mockJobs } from '../utils/mockData';
+import { jobApi } from '../utils/supabaseApi';
+import { Job } from '../types';
 import StatusBadge from '../components/StatusBadge';
 import PriorityBadge from '../components/PriorityBadge';
-import { ArrowLeft, Phone, Mail, Calendar, DollarSign, Package, MessageCircle, CircleCheck as CheckCircle } from 'lucide-react-native';
+import { ArrowLeft, Phone, Mail, Calendar, DollarSign, Package, MessageCircle, CircleCheck as CheckCircle, ImageIcon } from 'lucide-react-native';
 
 export default function JobDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuth();
+  const [job, setJob] = useState<Job | null>(null);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const loadJob = async () => {
+      try {
+        const jobData = await jobApi.getById(id);
+        setJob(jobData);
+      } catch (error) {
+        console.error('Failed to load job:', error);
+        Alert.alert('Error', 'Failed to load job details');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const job = mockJobs.find(j => j.id === id);
+    if (id) {
+      loadJob();
+    }
+  }, [id]);
 
-  if (!job) {
+  if (loading) {
     return (
       <View style={styles.container}>
-        <Text>Job not found</Text>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <ArrowLeft size={24} color="#1E293B" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Job Details</Text>
+          <View style={styles.headerRight} />
+        </View>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Loading job details...</Text>
+        </View>
       </View>
     );
   }
 
-  const handleStatusUpdate = (newStatus: string) => {
-    Alert.alert(
-      'Update Status',
-      `Change job status from "${job.status.replace('-', ' ')}" to "${newStatus.replace('-', ' ')}"?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Update', 
-          onPress: () => {
-            Alert.alert('Success', `Job status updated to "${newStatus.replace('-', ' ')}" successfully!`);
-          }
-        }
-      ]
+  if (!job) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <ArrowLeft size={24} color="#1E293B" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Job Details</Text>
+          <View style={styles.headerRight} />
+        </View>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Job not found</Text>
+        </View>
+      </View>
     );
+  }
+
+  const handleStatusUpdate = async (newStatus: string) => {
+    try {
+      await jobApi.update(job.id, { status: newStatus as any });
+      // Update local state
+      setJob(prev => prev ? { ...prev, status: newStatus as any } : null);
+      Alert.alert('Success', `Job status updated to "${newStatus.replace('-', ' ')}" successfully!`);
+    } catch (error) {
+      console.error('Failed to update job status:', error);
+      Alert.alert('Error', 'Failed to update job status. Please try again.');
+    }
   };
 
   const formatDate = (date: Date) => {
@@ -89,6 +135,26 @@ export default function JobDetailsScreen() {
             <Text style={styles.sectionTitle}>Issue Description</Text>
             <Text style={styles.issueText}>{job.issueDescription}</Text>
           </View>
+
+          {job.images && job.images.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Images</Text>
+              <View style={styles.imagesContainer}>
+                {job.images.map((imageUri, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.imageWrapper}
+                    onPress={() => {
+                      // Could implement full-screen image viewer here
+                      Alert.alert('Image', `Image ${index + 1} of ${job.images.length}`);
+                    }}
+                  >
+                    <Image source={{ uri: imageUri }} style={styles.jobImage} />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          )}
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Customer Information</Text>
@@ -508,5 +574,40 @@ const styles = StyleSheet.create({
   },
   statusButtonTextActive: {
     color: '#FFFFFF',
+  },
+  imagesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  imageWrapper: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  jobImage: {
+    width: '100%',
+    height: '100%',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#64748B',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#DC2626',
   },
 });

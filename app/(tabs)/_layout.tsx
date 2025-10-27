@@ -1,9 +1,22 @@
 import { Tabs } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
+import { useEffect } from 'react';
+import { router } from 'expo-router';
+import { LoadingScreen } from '../../components/LoadingScreen';
 import { Chrome as Home, Briefcase, Bell, Settings, ChartBar as BarChart3, Users, Wrench, User } from 'lucide-react-native';
 
 export default function TabLayout() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.replace('/login');
+    }
+  }, [user, isLoading]);
+
+  if (isLoading) {
+    return <LoadingScreen message="Checking authentication..." />;
+  }
 
   if (!user) {
     return null;
@@ -54,7 +67,19 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: false,
+        headerShown: true,
+        headerTitle: 'Greenware - Job Order Manager',
+        headerTitleAlign: 'center',
+        headerStyle: {
+          backgroundColor: '#FFFFFF',
+          borderBottomWidth: 1,
+          borderBottomColor: '#E2E8F0',
+        },
+        headerTitleStyle: {
+          fontSize: 18,
+          fontWeight: '600',
+          color: '#1F2937',
+        },
         tabBarStyle: {
           backgroundColor: '#FFFFFF',
           borderTopWidth: 1,

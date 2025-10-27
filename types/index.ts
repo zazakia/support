@@ -15,6 +15,10 @@ export interface User {
   avatar?: string;
   phone?: string;
   address?: string;
+  isActive: boolean;
+  lastLogin?: Date;
+  createdAt: Date;
+  permissions: string[];
 }
 
 export interface Job {
@@ -39,7 +43,7 @@ export interface Job {
   actualCost?: number;
   parts: Part[];
   notes: Note[];
-  images?: string[];
+  images: string[];
 }
 
 export interface Part {
@@ -115,9 +119,51 @@ export interface Technician {
   branchName: string;
   specializations: string[];
   isActive: boolean;
+  isAvailable: boolean;
   hireDate: Date;
   completedJobs: number;
   averageRating: number;
+  workSchedule?: WorkSchedule;
+}
+
+export interface TechnicianProfile extends User {
+  specializations: string[];
+  branchId: string;
+  branchName: string;
+  isAvailable: boolean;
+  workSchedule: WorkSchedule;
+  completedJobs: number;
+  averageRating: number;
+}
+
+export interface WorkSchedule {
+  monday: TimeSlot[];
+  tuesday: TimeSlot[];
+  wednesday: TimeSlot[];
+  thursday: TimeSlot[];
+  friday: TimeSlot[];
+  saturday: TimeSlot[];
+  sunday: TimeSlot[];
+}
+
+export interface TimeSlot {
+  start: string; // "09:00"
+  end: string;   // "17:00"
+}
+
+export interface UserSession {
+  userId: string;
+  token: string;
+  refreshToken: string;
+  expiresAt: Date;
+  deviceInfo: DeviceInfo;
+  lastActivity: Date;
+}
+
+export interface DeviceInfo {
+  platform: 'web' | 'ios' | 'android';
+  userAgent: string;
+  ipAddress: string;
 }
 
 export interface AdminReport {
@@ -257,6 +303,7 @@ export interface CreateJobFormData {
   issueDescription: string;
   priority: JobPriority;
   estimatedCost: string;
+  images: string[];
 }
 
 export interface LoginFormData {
@@ -542,9 +589,14 @@ export interface AsyncState<T> extends LoadingState {
 export interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  quickLogin: (role: UserRole) => Promise<boolean>;
+  logout: () => Promise<void>;
   isLoading: boolean;
   updateUser: (userData: Partial<User>) => void;
+  hasPermission: (permission: string) => boolean;
+  hasAnyPermission: (permissions: string[]) => boolean;
+  hasAllPermissions: (permissions: string[]) => boolean;
+  canAccessRoute: (route: string) => boolean;
 }
 
 // Hook Return Types

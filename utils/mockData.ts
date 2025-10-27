@@ -7,37 +7,56 @@ export const mockUsers: User[] = [
     name: 'John Smith',
     role: 'customer',
     phone: '(555) 123-4567',
-    address: '123 Main St, City, State 12345'
+    address: '123 Main St, City, State 12345',
+    isActive: true,
+    lastLogin: new Date('2024-01-16T10:30:00'),
+    createdAt: new Date('2023-12-01'),
+    permissions: ['view_own_jobs', 'create_job', 'update_profile']
   },
   {
     id: '2',
     email: 'mike.tech@repairshop.com',
     name: 'Mike Johnson',
     role: 'technician',
-    phone: '(555) 987-6543'
+    phone: '(555) 987-6543',
+    isActive: true,
+    lastLogin: new Date('2024-01-16T08:15:00'),
+    createdAt: new Date('2023-02-01'),
+    permissions: ['view_assigned_jobs', 'update_job_status', 'add_notes', 'update_profile']
   },
   {
     id: '3',
     email: 'sarah.admin@repairshop.com',
     name: 'Sarah Wilson',
     role: 'admin',
-    phone: '(555) 456-7890'
+    phone: '(555) 456-7890',
+    isActive: true,
+    lastLogin: new Date('2024-01-16T09:00:00'),
+    createdAt: new Date('2023-01-15'),
+    permissions: ['view_all_jobs', 'manage_users', 'assign_technicians', 'view_reports', 'manage_customers']
   },
   {
     id: '4',
     email: 'owner@repairshop.com',
     name: 'David Brown',
     role: 'owner',
-    phone: '(555) 111-2222'
-  }
-  ,
+    phone: '(555) 111-2222',
+    isActive: true,
+    lastLogin: new Date('2024-01-16T07:45:00'),
+    createdAt: new Date('2023-01-01'),
+    permissions: ['full_access', 'manage_branches', 'view_analytics', 'system_settings']
+  },
   {
     id: '5',
     email: 'emily.davis@email.com',
     name: 'Emily Davis',
     role: 'customer',
     phone: '(555) 789-0123',
-    address: '789 Oak Ave, City, State 12345'
+    address: '789 Oak Ave, City, State 12345',
+    isActive: true,
+    lastLogin: new Date('2024-01-15T16:20:00'),
+    createdAt: new Date('2023-11-10'),
+    permissions: ['view_own_jobs', 'create_job', 'update_profile']
   },
   {
     id: '6',
@@ -45,7 +64,44 @@ export const mockUsers: User[] = [
     name: 'Robert Wilson',
     role: 'customer',
     phone: '(555) 234-5678',
-    address: '456 Pine St, City, State 12345'
+    address: '456 Pine St, City, State 12345',
+    isActive: true,
+    lastLogin: new Date('2024-01-14T14:10:00'),
+    createdAt: new Date('2023-10-05'),
+    permissions: ['view_own_jobs', 'create_job', 'update_profile']
+  },
+  {
+    id: 'T001',
+    email: 'alex.tech@repairshop.com',
+    name: 'Alex Rodriguez',
+    role: 'technician',
+    phone: '(555) 234-5678',
+    isActive: true,
+    lastLogin: new Date('2024-01-16T07:30:00'),
+    createdAt: new Date('2023-04-15'),
+    permissions: ['view_assigned_jobs', 'update_job_status', 'add_notes', 'update_profile']
+  },
+  {
+    id: 'T002',
+    email: 'jessica.tech@repairshop.com',
+    name: 'Jessica Chen',
+    role: 'technician',
+    phone: '(555) 345-6789',
+    isActive: true,
+    lastLogin: new Date('2024-01-16T09:45:00'),
+    createdAt: new Date('2023-07-01'),
+    permissions: ['view_assigned_jobs', 'update_job_status', 'add_notes', 'update_profile']
+  },
+  {
+    id: 'T003',
+    email: 'carlos.tech@repairshop.com',
+    name: 'Carlos Martinez',
+    role: 'technician',
+    phone: '(555) 456-7890',
+    isActive: true,
+    lastLogin: new Date('2024-01-15T18:20:00'),
+    createdAt: new Date('2023-09-15'),
+    permissions: ['view_assigned_jobs', 'update_job_status', 'add_notes', 'update_profile']
   }
 ];
 
@@ -96,9 +152,19 @@ export const mockTechnicians: Technician[] = [
     branchName: 'Downtown Branch',
     specializations: ['iPhone Repair', 'Android Repair', 'Screen Replacement'],
     isActive: true,
+    isAvailable: true,
     hireDate: new Date('2023-02-01'),
     completedJobs: 156,
     averageRating: 4.8,
+    workSchedule: {
+      monday: [{ start: '09:00', end: '17:00' }],
+      tuesday: [{ start: '09:00', end: '17:00' }],
+      wednesday: [{ start: '09:00', end: '17:00' }],
+      thursday: [{ start: '09:00', end: '17:00' }],
+      friday: [{ start: '09:00', end: '17:00' }],
+      saturday: [{ start: '10:00', end: '14:00' }],
+      sunday: []
+    }
   },
   {
     id: 'T001',
@@ -109,9 +175,19 @@ export const mockTechnicians: Technician[] = [
     branchName: 'Downtown Branch',
     specializations: ['MacBook Repair', 'Data Recovery', 'Hardware Diagnostics'],
     isActive: true,
+    isAvailable: true,
     hireDate: new Date('2023-04-15'),
     completedJobs: 89,
     averageRating: 4.6,
+    workSchedule: {
+      monday: [{ start: '08:00', end: '16:00' }],
+      tuesday: [{ start: '08:00', end: '16:00' }],
+      wednesday: [{ start: '08:00', end: '16:00' }],
+      thursday: [{ start: '08:00', end: '16:00' }],
+      friday: [{ start: '08:00', end: '16:00' }],
+      saturday: [],
+      sunday: []
+    }
   },
   {
     id: 'T002',
@@ -122,9 +198,42 @@ export const mockTechnicians: Technician[] = [
     branchName: 'Mall Branch',
     specializations: ['Tablet Repair', 'Water Damage', 'Battery Replacement'],
     isActive: true,
+    isAvailable: false,
     hireDate: new Date('2023-07-01'),
     completedJobs: 67,
     averageRating: 4.9,
+    workSchedule: {
+      monday: [{ start: '10:00', end: '18:00' }],
+      tuesday: [{ start: '10:00', end: '18:00' }],
+      wednesday: [{ start: '10:00', end: '18:00' }],
+      thursday: [{ start: '10:00', end: '18:00' }],
+      friday: [{ start: '10:00', end: '18:00' }],
+      saturday: [{ start: '09:00', end: '15:00' }],
+      sunday: [{ start: '12:00', end: '16:00' }]
+    }
+  },
+  {
+    id: 'T003',
+    name: 'Carlos Martinez',
+    email: 'carlos.tech@repairshop.com',
+    phone: '(555) 456-7890',
+    branchId: 'B001',
+    branchName: 'Downtown Branch',
+    specializations: ['Gaming Console Repair', 'PlayStation', 'Xbox', 'Nintendo Switch'],
+    isActive: true,
+    isAvailable: true,
+    hireDate: new Date('2023-09-15'),
+    completedJobs: 34,
+    averageRating: 4.7,
+    workSchedule: {
+      monday: [{ start: '12:00', end: '20:00' }],
+      tuesday: [{ start: '12:00', end: '20:00' }],
+      wednesday: [{ start: '12:00', end: '20:00' }],
+      thursday: [{ start: '12:00', end: '20:00' }],
+      friday: [{ start: '12:00', end: '20:00' }],
+      saturday: [{ start: '10:00', end: '18:00' }],
+      sunday: []
+    }
   },
 ];
 export const mockJobs: Job[] = [
@@ -176,6 +285,10 @@ export const mockJobs: Job[] = [
         timestamp: new Date('2024-01-16T14:15:00'),
         type: 'customer'
       }
+    ],
+    images: [
+      'https://via.placeholder.com/400x300/2563EB/FFFFFF?text=iPhone+Screen+Damage',
+      'https://via.placeholder.com/400x300/DC2626/FFFFFF?text=Cracked+Screen+Closeup'
     ]
   },
   {
@@ -216,7 +329,8 @@ export const mockJobs: Job[] = [
         timestamp: new Date('2024-01-10T09:00:00'),
         type: 'internal'
       }
-    ]
+    ],
+    images: []
   },
   {
     id: 'J003',
@@ -255,6 +369,10 @@ export const mockJobs: Job[] = [
         timestamp: new Date('2024-01-08T16:30:00'),
         type: 'customer'
       }
+    ],
+    images: [
+      'https://via.placeholder.com/400x300/0891B2/FFFFFF?text=Water+Damage+Phone',
+      'https://via.placeholder.com/400x300/059669/FFFFFF?text=Repaired+Device'
     ]
   }
 ];

@@ -5,7 +5,7 @@ module.exports = function (api) {
     plugins: [
       // React Native Reanimated plugin should be listed last
       [
-        'react-native-reanimated/plugin',
+        'react-native-worklets/plugin',
         {
           // Optional configuration
           relativeSourceLocation: true,

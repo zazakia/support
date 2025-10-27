@@ -3,7 +3,9 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Job, JobCardProps } from '../types';
 import StatusBadge from './StatusBadge';
 import PriorityBadge from './PriorityBadge';
-import { Clock, Wrench, DollarSign } from 'lucide-react-native';
+import { TechnicianProfile } from './TechnicianProfile';
+import { Clock, Wrench, DollarSign, User } from 'lucide-react-native';
+import { mockTechnicians } from '../utils/mockData';
 
 const JobCard: React.FC<JobCardProps> = ({ 
   job, 
@@ -45,10 +47,28 @@ const JobCard: React.FC<JobCardProps> = ({
         </View>
       )}
       
-      {showTechnician && job.technicianName && (
-        <View style={styles.technicianInfo}>
-          <Wrench size={16} color="#6B7280" />
-          <Text style={styles.technicianName}>{job.technicianName}</Text>
+      {showTechnician && job.technicianId && (
+        <View style={styles.technicianSection}>
+          {(() => {
+            const technician = mockTechnicians.find(t => t.id === job.technicianId);
+            if (technician) {
+              return <TechnicianProfile technician={technician} showFullProfile={false} />;
+            } else {
+              return (
+                <View style={styles.technicianInfo}>
+                  <Wrench size={16} color="#6B7280" />
+                  <Text style={styles.technicianName}>{job.technicianName || 'Unassigned'}</Text>
+                </View>
+              );
+            }
+          })()}
+        </View>
+      )}
+      
+      {showTechnician && !job.technicianId && (
+        <View style={styles.unassignedTechnician}>
+          <User size={16} color="#94A3B8" />
+          <Text style={styles.unassignedText}>No technician assigned</Text>
         </View>
       )}
       
@@ -144,6 +164,29 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     color: '#374151',
+  },
+  technicianSection: {
+    marginBottom: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
+  },
+  unassignedTechnician: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 8,
+    padding: 8,
+  },
+  unassignedText: {
+    fontSize: 14,
+    color: '#94A3B8',
+    fontStyle: 'italic',
   },
   footer: {
     flexDirection: 'row',

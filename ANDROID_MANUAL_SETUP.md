@@ -82,4 +82,4 @@ Now you can run:
 npm run dev:all
 ```
 
-The Android development should work without errors!
+The Android development should wor
