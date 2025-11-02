@@ -140,9 +140,12 @@ export default function CreateJobScreen(): React.ReactElement {
                   Alert.alert('Success', 'Job created successfully!', [
                     { text: 'OK', onPress: () => router.back() }
                   ]);
-                } catch (error) {
+                } catch (error: any) {
                   console.error('Failed to create job:', error);
-                  Alert.alert('Error', 'Failed to create job. Please try again.');
+                  
+                  // Handle enriched error objects from withConnectionRetry
+                  const errorMessage = error?.userFriendlyMessage || error?.message || 'Failed to create job. Please try again.';
+                  Alert.alert('Error', errorMessage);
                 } finally {
                   setIsSubmitting(false);
                 }

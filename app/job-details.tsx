@@ -19,9 +19,12 @@ export default function JobDetailsScreen() {
       try {
         const jobData = await jobApi.getById(id);
         setJob(jobData);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to load job:', error);
-        Alert.alert('Error', 'Failed to load job details');
+        
+        // Handle enriched error objects from withConnectionRetry
+        const errorMessage = error?.userFriendlyMessage || error?.message || 'Failed to load job details';
+        Alert.alert('Error', errorMessage);
       } finally {
         setLoading(false);
       }
@@ -78,9 +81,12 @@ export default function JobDetailsScreen() {
       // Update local state
       setJob(prev => prev ? { ...prev, status: newStatus as any } : null);
       Alert.alert('Success', `Job status updated to "${newStatus.replace('-', ' ')}" successfully!`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to update job status:', error);
-      Alert.alert('Error', 'Failed to update job status. Please try again.');
+      
+      // Handle enriched error objects from withConnectionRetry
+      const errorMessage = error?.userFriendlyMessage || error?.message || 'Failed to update job status. Please try again.';
+      Alert.alert('Error', errorMessage);
     }
   };
 

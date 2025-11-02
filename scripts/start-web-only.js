@@ -5,6 +5,7 @@ const { spawn } = require('child_process');
 console.log('🌐 Starting Web-Only Development Server...');
 console.log('📱 This bypasses Android SDK requirements');
 console.log('🔗 The app will open in your browser automatically');
+console.log('🔧 Environment variables are loaded by metro.config.js');
 
 // Set environment variables to disable Android
 process.env.EXPO_NO_ANDROID = '1';

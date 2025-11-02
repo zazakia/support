@@ -2,6 +2,270 @@
 
 ## Common Issues and Solutions
 
+### 🔌 Supabase Connection Issues
+
+This section covers problems related to Supabase database and authentication connectivity.
+
+#### Symptoms to Identify Connection Problems:
+- Authentication fails with "Invalid credentials" or "Network error"
+- User data not loading
+- App showing "Loading..." state indefinitely
+- Console errors mentioning Supabase URLs or API keys
+- Failed API calls to database tables
+
+#### Quick Diagnosis Checklist:
+```bash
+# Test Supabase connection
+npm run test:supabase
+
+# Check environment variables
+node -e "console.log('URL:', process.env.EXPO_PUBLIC_SUPABASE_URL)"
+node -e "console.log('Anon Key:', !!process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY)"
+node -e "console.log('Service Key (Server):', !!process.env.SUPABASE_SERVICE_KEY)"
+```
+
+#### 🔧 Missing or Incorrect Environment Variables
+
+**Error:** `Missing required Supabase environment variables` or `Invalid API key`
+
+**Symptoms:**
+- App fails to start
+- Auth context shows null user
+- Console logs missing variable errors
+
+**Root Cause:** `.env` file missing, incorrect values, or variables not loaded
+
+**Fix Steps:**
+1. **Verify `.env` file exists:**
+   ```bash
+   ls -la .env
+   ```
+
+2. **Check file contents:**
+   ```bash
+   cat .env
+   ```
+   Should contain:
+   ```
+   EXPO_PUBLIC_SUPABASE_URL=https://[project-ref].supabase.co
+   EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIs...
+   ```
+   
+   For server-side operations (Node.js scripts, API routes):
+   ```
+   SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIs...
+   ```
+   
+   ⚠️ **Security Warning**: Never expose service-role keys in client bundles (Expo/React/React Native).
+
+3. **Verify correct values:**
+   - Get URL from Supabase Dashboard > Settings > API
+   - Get anon key from Supabase Dashboard > Settings > API > Project API Keys
+   - Get service role key (optional) from same location
+
+4. **Restart development server after .env changes:**
+   ```bash
+   npm run dev:clear
+   npm run dev
+   ```
+
+#### 🌐 Network and CORS Issues
+
+**Error:** `NetworkError` or `CORS` error messages
+**Symptoms:** Failed requests to Supabase endpoints
+
+**Root Cause:** Browser blocking cross-origin requests
+
+**Fix Steps:**
+1. **Configure CORS in Supabase Dashboard:**
+   - Go to Supabase Dashboard > Settings > API
+   - Under "CORS Origins", add your development URL:
+     - `http://localhost:8082`
+     - `http://localhost:8084`
+     - `*` for development (not recommended for production)
+   - Save changes
+
+2. **Test CORS configuration:**
+   ```bash
+   npm run test:supabase
+   ```
+
+3. **Check browser console for CORS errors:**
+   ```javascript
+   // In browser console
+   fetch('https://[project-ref].supabase.co/rest/v1/')
+   ```
+
+#### 🔐 Authentication Issues
+
+**Error:** "Email address is invalid" or "Invalid JWT"
+**Symptoms:** User can't log in, 1-click login fails
+
+**Root Cause:** Invalid email domains or authentication configuration
+
+**Fix Steps:**
+1. **Update demo credentials** (for development):
+   ```typescript
+   // In context/AuthContext.tsx
+   const demoCredentials = {
+     customer: { email: 'customer@supabase.co', password: 'password123' },
+     technician: { email: 'technician@supabase.co', password: 'password123' },
+     admin: { email: 'admin@supabase.co', password: 'password123' },
+     owner: { email: 'owner@supabase.co', password: 'password123' },
+   };
+   ```
+
+2. **Verify authentication configuration:**
+   - Ensure using anon key for authentication
+   - Service key (`SUPABASE_SERVICE_KEY`) should only be used for server-side data operations
+   - Never expose service-role keys in client bundles
+   - Check Supabase auth settings in dashboard
+
+3. **Test authentication:**
+   ```bash
+   npm run test:supabase
+   ```
+
+#### 🔒 Row Level Security (RLS) Issues
+
+**Error:** "Row level security policy violation"
+**Symptoms:** Users can't access their data, queries fail
+
+**Root Cause:** RLS policies blocking access to database tables
+
+**Fix Steps:**
+1. **Check RLS policies in Supabase Dashboard:**
+   - Go to Authentication > Policies
+   - Verify policies for each table
+
+2. **Temporarily disable RLS for testing:**
+   - In Supabase SQL Editor:
+   ```sql
+   -- For testing only - re-enable after debugging
+   ALTER TABLE your_table_name DISABLE ROW LEVEL SECURITY;
+   ```
+
+3. **Test access without RLS:**
+   ```bash
+   npm run test:supabase
+   ```
+
+4. **Re-enable proper RLS policies:**
+   ```sql
+   ALTER TABLE your_table_name ENABLE ROW LEVEL SECURITY;
+   ```
+
+#### 📊 Database Access Issues
+
+**Error:** "relation does not exist" or "permission denied"
+**Symptoms:** Can't access certain tables, data not loading
+
+**Root Cause:** Missing tables or incorrect permissions
+
+**Fix Steps:**
+1. **Check if required tables exist:**
+   ```sql
+   -- In Supabase SQL Editor
+   SELECT * FROM information_schema.tables WHERE table_schema = 'public';
+   ```
+
+2. **Create missing tables** or run migrations:
+   - Check application code for table creation scripts
+   - Run any pending database migrations
+
+3. **Test table access:**
+   ```bash
+   npm run test:supabase
+   ```
+
+#### 🚫 Paused or Deleted Supabase Project
+
+**Error:** "Project not found" or "Connection failed"
+**Symptoms:** All Supabase operations fail
+
+**Root Cause:** Supabase project is paused, suspended, or deleted
+
+**Fix Steps:**
+1. **Check project status in Supabase Dashboard:**
+   - Verify project is active
+   - Check for suspension notifications
+
+2. **Reactivate project if paused:**
+   - Contact Supabase support if needed
+
+3. **Verify project hasn't been deleted:**
+   - Check your account projects list
+
+#### 🔄 Connection Testing and Diagnostics
+
+**Test Connection Script:**
+```bash
+# Run comprehensive connection test
+npm run test:supabase
+
+# Or run manual checks
+node -e "
+const { validateConnection } = require('./utils/connectionValidator');
+validateConnection().then(console.log).catch(console.error);
+"
+```
+
+**Manual Diagnosis:**
+1. **Check URL accessibility:**
+   ```bash
+   curl -I https://[project-ref].supabase.co
+   ```
+
+2. **Test API key validity:**
+   ```javascript
+   // In browser console
+   const url = 'https://[project-ref].supabase.co/rest/v1/';
+   const key = 'your-anon-key';
+   fetch(url, {
+     headers: {apikey: key}
+   })
+   ```
+
+3. **Check console diagnostics:**
+   - Look for 🔧 Supabase Connection Diagnostics logs
+   - Check for ✅/❌ indicators in console
+
+#### 🚀 Quick Connection Fix Commands
+
+```bash
+# Complete connection reset
+npm run clear:cache
+npm run dev:clear
+
+# Test connection
+npm run test:supabase
+
+# Verify environment variables
+node -e "
+  console.log('URL:', process.env.EXPO_PUBLIC_SUPABASE_URL);
+  console.log('Anon Key:', !!process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY);
+  console.log('Service Key (Server):', !!process.env.SUPABASE_SERVICE_KEY);
+"
+```
+
+#### 📞 Connection Troubleshooting Flowchart
+
+```
+Connection Issues?
+│
+├─ Yes → Check .env file → Missing/Invalid?
+│     ├─ Yes → Fix environment variables → Restart server
+│     └─ No → Check network connectivity → CORS issues?
+│           ├─ Yes → Configure CORS in Supabase Dashboard
+│           └─ No → Check authentication → Auth errors?
+│                 ├─ Yes → Fix authentication credentials
+│                 └─ No → Check RLS policies → RLS errors?
+│                       ├─ Yes → Adjust RLS policies
+│                       └─ No → Test with connection validator
+│
+└─ No → Connection is healthy
+```
+
 ### 🚨 Bundle Loading Error (500 Internal Server Error)
 
 **Error:** `Failed to load resource: the server responded with a status of 500 (Internal Server Error)`

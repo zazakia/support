@@ -154,8 +154,8 @@ export const TechnicianProfile: React.FC<TechnicianProfileProps> = ({
                   {day.charAt(0).toUpperCase() + day.slice(1)}
                 </Text>
                 <Text style={styles.scheduleTime}>
-                  {slots.length > 0 
-                    ? slots.map(slot => `${slot.start} - ${slot.end}`).join(', ')
+                  {slots.length > 0
+                    ? slots.map((slot: { start: string; end: string }) => `${slot.start} - ${slot.end}`).join(', ')
                     : 'Off'
                   }
                 </Text>

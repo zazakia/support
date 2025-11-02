@@ -597,6 +597,7 @@ export interface AuthContextType {
   hasAnyPermission: (permissions: string[]) => boolean;
   hasAllPermissions: (permissions: string[]) => boolean;
   canAccessRoute: (route: string) => boolean;
+  checkConnection: () => Promise<boolean>;
 }
 
 // Hook Return Types

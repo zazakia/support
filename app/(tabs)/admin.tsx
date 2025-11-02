@@ -138,11 +138,14 @@ export default function AdminScreen() {
   ];
 
   const handleSectionPress = (route: string) => {
+    console.log('🔍 [DEBUG] Attempting to navigate to route:', route);
     // Check if route exists, if not show coming soon alert
     const validRoutes = ['/admin/branches', '/admin/technicians', '/admin/reports'];
     if (validRoutes.includes(route)) {
-      router.push(route);
+      console.log('✅ [DEBUG] Route is valid, navigating...');
+      router.push(route as any);
     } else {
+      console.log('⚠️ [DEBUG] Route not valid, showing coming soon alert');
       Alert.alert('Coming Soon', 'This feature is under development and will be available soon!');
     }
   };

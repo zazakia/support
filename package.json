@@ -24,6 +24,7 @@
     "audit:security": "npm audit --audit-level=moderate",
     "fix:dev": "node scripts/fix-dev-server.js fix",
     "clear:cache": "node scripts/fix-dev-server.js clear",
+    "test:supabase": "node scripts/test-supabase-connection.js",
     "install:android": "powershell -ExecutionPolicy Bypass -File scripts/install-android-sdk.ps1",
     "build:apk": "node scripts/build-apk.js",
     "build:android": "eas build --platform android --profile preview",
@@ -40,6 +41,7 @@
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.14",
     "@supabase/supabase-js": "^2.76.1",
+    "chalk": "^5.3.0",
     "expo": "54",
     "expo-blur": "~15.0.7",
     "expo-camera": "~17.0.8",
@@ -79,6 +81,7 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/react": "~19.1.10",
+    "dotenv": "^17.2.3",
     "eslint": "^9.0.0",
     "eslint-config-expo": "~10.0.0",
     "typescript": "~5.9.2"

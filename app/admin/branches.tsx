@@ -28,9 +28,12 @@ export default function BranchesScreen() {
   };
 
   const handleBranchAction = (branch: any, action: string) => {
+    console.log('🔍 [DEBUG] Branch action:', action, 'for branch:', branch.id);
     switch (action) {
       case 'edit':
-        router.push(`/admin/branches/${branch.id}/edit`);
+        const editRoute = `/admin/branches/${branch.id}/edit` as any;
+        console.log('✅ [DEBUG] Navigating to edit route:', editRoute);
+        router.push(editRoute);
         break;
       case 'deactivate':
         Alert.alert(
